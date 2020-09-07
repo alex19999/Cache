@@ -50,6 +50,7 @@ link_directories(${Cache_LINKER_LIBS})
 add_executable(CacheTests ${CacheTests_sources})
 target_compile_options(CacheTests PRIVATE ${CACHE_CXX_FLAGS} ${CACHE_LINK_FLAGS})
 target_link_libraries(CacheTests CacheLib)
+
 if(NOT WIN32)
   target_link_libraries(CacheTests stdc++fs)
 endif()

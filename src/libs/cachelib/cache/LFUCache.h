@@ -10,21 +10,83 @@
 namespace caches
 {
 
-template <typename T, typename KeyT = size_t>
+template <typename T, typename KeyT>
 class LFUCache
 {
     public:
-        explicit LFUCache(size_t cap);
+        explicit LFUCache(size_t cap)
+            : capacity(cap)
+            , size(0)
+            {
+            }
         
         size_t getCapacity() const { return capacity; }
         bool full() const { return capacity == size; }
         
-        bool lookup(const KeyT& key, const T& value);
+        bool lookup(const KeyT& key, const T& value)
+        {
+            // Update value
+            if (keyToVal.find(key) != keyToVal.end())
+            {
+                touch(key);
+                keyToVal[key] = value;
+                return true;
+            }
+            
+            // Erase if needed
+            if (full())
+            {
+                evict();
+            }
+            touch(key, true);
+            keyToVal.emplace(key, value);
+            return false;
+        }
     
     private:
-        void touch(const KeyT& key, bool isfill = false);
-        void insert(const KeyT& key);
-        void evict();
+        void touch(const KeyT& key, bool isfill = false)
+        {
+            if (isfill)
+            {
+                insert(key);
+                return;
+            }
+            
+            if (keyToFreq.find(key) == keyToFreq.end())
+            {
+                throw std::runtime_error("LFUCache[touch]: no key to increment");
+            }
+            
+            // Update keys
+            auto elementToUpdate = keyToFreq[key];
+            freqToKey.erase(elementToUpdate);
+            keyToFreq(key, 
+                freqToKey.emplace(elementToUpdate.first + 1, elementToUpdate.second));
+        }
+        
+        void insert(const KeyT& key)
+        {
+            if (size >= capacity)
+            {
+                throw std::runtime_error("LFUCache[insert]: overflow")
+            }
+            keyToFreq.emplace(key, freqToKey.emplace(0, key));
+            size++;
+        }
+        
+        void evict()
+        {
+            auto elementToEvict = freqToKey.begin()->seond();
+            freqToKey.erase(keyToFreq[elementToEvict]);
+            keyToVal.erase(elementToUpdate);
+            keyToFreq.erase(elementToEvict);
+
+            if (size <= 0)
+            {
+                throw std::runtime_error("LFUCache[evict]: size should be at least zero")
+            }
+            size--;
+        }
 
         size_t capacity;
         size_t size;

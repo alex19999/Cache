@@ -8,7 +8,7 @@ TEST(TestLFUCache, CapacitySizeUnit)
 {
     const size_t capacity = 16;
     
-    caches::LFUCache<int, int> simplecache(capacity); 
+    caches::LFUCache<int, int> simplecache{capacity}; 
 }
 
 } // namespace UT
