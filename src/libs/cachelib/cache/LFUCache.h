@@ -21,6 +21,7 @@ class LFUCache
             }
         
         size_t getCapacity() const { return capacity; }
+        size_t getSize() const { return size; }
         bool full() const { return capacity == size; }
         
         bool lookup(const KeyT& key, const T& value)
@@ -59,16 +60,16 @@ class LFUCache
             
             // Update keys
             auto elementToUpdate = keyToFreq[key];
+            const auto newFrequency = elementToUpdate->first + 1;
             freqToKey.erase(elementToUpdate);
-            keyToFreq(key, 
-                freqToKey.emplace(elementToUpdate.first + 1, elementToUpdate.second));
+            keyToFreq[key] = freqToKey.emplace(newFrequency, key);
         }
         
         void insert(const KeyT& key)
         {
             if (size >= capacity)
             {
-                throw std::runtime_error("LFUCache[insert]: overflow")
+                throw std::runtime_error("LFUCache[insert]: overflow");
             }
             keyToFreq.emplace(key, freqToKey.emplace(0, key));
             size++;
@@ -76,14 +77,14 @@ class LFUCache
         
         void evict()
         {
-            auto elementToEvict = freqToKey.begin()->seond();
+            auto elementToEvict = freqToKey.begin()->second;
             freqToKey.erase(keyToFreq[elementToEvict]);
-            keyToVal.erase(elementToUpdate);
+            keyToVal.erase(elementToEvict);
             keyToFreq.erase(elementToEvict);
 
             if (size <= 0)
             {
-                throw std::runtime_error("LFUCache[evict]: size should be at least zero")
+                throw std::runtime_error("LFUCache[evict]: size should be at least zero");
             }
             size--;
         }
