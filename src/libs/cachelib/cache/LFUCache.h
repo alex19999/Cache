@@ -1,4 +1,3 @@
-
 #ifndef LFU_CACHE_H
 #define LFU_CACHE_H
 
@@ -9,11 +8,13 @@
 #include <chrono>
 #include <thread>
 
+#include "CacheInterface.h"
+
 namespace caches
 {
 
 template <typename T, typename KeyT>
-class LFUCache
+class LFUCache: public CacheInterface<T, KeyT>
 {
     public:
         explicit LFUCache(size_t cap)
@@ -26,7 +27,7 @@ class LFUCache
         size_t getSize() const { return size; }
         bool full() const { return capacity == size; }
         
-        bool lookup(const KeyT& key)
+        bool lookup(const KeyT& key) override
         {
             // Update value
             if (keyToVal.find(key) != keyToVal.end())
@@ -46,7 +47,7 @@ class LFUCache
         }
     
     private:
-        void touch(const KeyT& key, bool isfill = false)
+        void touch(const KeyT& key, bool isfill = false) override
         {
             if (isfill)
             {
@@ -66,7 +67,7 @@ class LFUCache
             keyToFreq[key] = freqToKey.emplace(newFrequency, key);
         }
         
-        void insert(const KeyT& key)
+        void insert(const KeyT& key) override
         {
             if (size >= capacity)
             {
@@ -76,7 +77,7 @@ class LFUCache
             size++;
         }
         
-        void evict()
+        void evict() override
         {
             auto elementToEvict = freqToKey.begin()->second;
             freqToKey.erase(keyToFreq[elementToEvict]);
@@ -90,7 +91,7 @@ class LFUCache
             size--;
         }
 
-        T slowLoad([[maybe_unused]] const KeyT& key) const
+        T slowLoad([[maybe_unused]] const KeyT& key) const override
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             return static_cast<T>(1);
