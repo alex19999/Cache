@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     for (size_t i = 0; i < numKeys; ++i)
     {
         std::cin >> key;
-        hits += cache.lookup(key, 1);
+        hits += cache.lookup(key);
 
     }
     std::cout << "Number of hits = " << hits << std::endl;
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
     caches::LFUCache<size_t, size_t> cache{ params.mCacheSize };
     for (size_t i = 0; i < params.mKeys.size(); ++i)
     {
-        hits += cache.lookup(params.mKeys[i], 1);
+        hits += cache.lookup(params.mKeys[i]);
     }
     std::cout << "Number of hits = " << hits << std::endl;
     return 0;

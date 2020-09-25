@@ -6,6 +6,8 @@
 #include <map>
 #include <unordered_map>
 #include <optional>
+#include <chrono>
+#include <thread>
 
 namespace caches
 {
@@ -24,13 +26,12 @@ class LFUCache
         size_t getSize() const { return size; }
         bool full() const { return capacity == size; }
         
-        bool lookup(const KeyT& key, const T& value)
+        bool lookup(const KeyT& key)
         {
             // Update value
             if (keyToVal.find(key) != keyToVal.end())
             {
                 touch(key);
-                keyToVal[key] = value;
                 return true;
             }
             
@@ -40,7 +41,7 @@ class LFUCache
                 evict();
             }
             touch(key, true);
-            keyToVal.emplace(key, value);
+            keyToVal.emplace(key, slowLoad(key));
             return false;
         }
     
@@ -87,6 +88,12 @@ class LFUCache
                 throw std::runtime_error("LFUCache[evict]: size should be at least zero");
             }
             size--;
+        }
+
+        T slowLoad([[maybe_unused]] const KeyT& key) const
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            return static_cast<T>(1);
         }
 
         size_t capacity;

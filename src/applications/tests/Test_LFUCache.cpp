@@ -15,7 +15,7 @@ TEST(TestLFUCache, CapacitySizeUnit)
     EXPECT_EQ(simplecache.getSize(), 0);
     for (int i = 0; i < 20; ++i)
     {
-        simplecache.lookup(i, i);
+        simplecache.lookup(i);
         EXPECT_EQ(simplecache.getSize(), std::min(i + 1, static_cast<int>(capacity)));
     } 
 }
@@ -32,7 +32,7 @@ TEST(TestLFUCache, TrivialUnit)
     {
         for (size_t i = 0; i < numOfRequests; ++i)
         {
-            hits += static_cast<size_t>(cache.lookup(i, i));
+            hits += static_cast<size_t>(cache.lookup(i));
         }
     }
     EXPECT_EQ(hits, 100);
@@ -50,7 +50,7 @@ TEST(TestLFUCache, StreamUnit)
     {
         for (size_t i = 0; i < numOfRequests; ++i)
         {
-            hits += static_cast<size_t>(cache.lookup(i, i));
+            hits += static_cast<size_t>(cache.lookup(i));
         }
     }
     EXPECT_EQ(hits, 0);
@@ -68,7 +68,7 @@ TEST(TestLFUCache, TrashingUnit)
     {
         for (size_t i = 0; i < numOfRequests; ++i)
         {
-            hits += static_cast<size_t>(cache.lookup(i, i));
+            hits += static_cast<size_t>(cache.lookup(i));
         }
     }
 
@@ -90,20 +90,20 @@ TEST(TestLFUCache, ScanUnit)
     {
         for (size_t i = 0; i < numOfRequests; ++i)
         {
-            hits += static_cast<size_t>(cache.lookup(i, i));
+            hits += static_cast<size_t>(cache.lookup(i));
         }
     }
 
     // Scan pattern, which evicts 10 useful elements, 0 hits because new
     for (size_t i = 0; i < scanSize; ++i)
     {
-        hits += static_cast<size_t>(cache.lookup(i + 10000, i));
+        hits += static_cast<size_t>(cache.lookup(i + 10000));
     }
 
     // Must reveive 99 hits
     for (size_t i = 0; i < numOfRequests; ++i)
     {
-        hits += static_cast<size_t>(cache.lookup(i, i));
+        hits += static_cast<size_t>(cache.lookup(i));
     }
 
     // LFU is scan-resistant unlike LRU
