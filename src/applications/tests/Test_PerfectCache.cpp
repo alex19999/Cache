@@ -97,7 +97,7 @@ TEST(TestPerfectCache, ScanUnit)
     const size_t scanSize = 10;
     size_t hits = 0;
     // Sequence
-    std::vector<size_t> seqOfKeys(repeat * numOfRequests);
+    std::vector<size_t> seqOfKeys((repeat + 1) * numOfRequests + scanSize);
     std::iota(seqOfKeys.begin(), seqOfKeys.begin() + repeat * numOfRequests, 0);
     std::iota(seqOfKeys.begin() + repeat * numOfRequests, seqOfKeys.begin() + repeat * numOfRequests + scanSize, 10000);
     std::iota(seqOfKeys.begin() + repeat * numOfRequests + scanSize, seqOfKeys.end(), 0);
