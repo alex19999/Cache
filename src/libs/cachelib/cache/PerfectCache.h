@@ -8,16 +8,14 @@
 #include <chrono>
 #include <thread>
 
-#include "CacheInterface.h"
-
 namespace caches
 {
 
 template <typename T, typename KeyT>
-class PerfectCache: public CacheInterface<T, KeyT>
+class PerfectCache
 {
     public:
-        explicit PerfectCache(size_t cap, const std::vector<KeyT> seqOfKeys)
+        PerfectCache(size_t cap, const std::vector<KeyT> seqOfKeys)
             : capacity(cap)
             , size(0)
             , fullSeqLen(seqOfKeys.size())
@@ -41,7 +39,7 @@ class PerfectCache: public CacheInterface<T, KeyT>
         size_t getSize() const { return size; }
         bool full() const { return capacity == size; }
         
-        bool lookup(const KeyT& key) override
+        bool lookup(const KeyT& key)
         {
             if (values.find(key) != values.end())
             {
@@ -61,17 +59,17 @@ class PerfectCache: public CacheInterface<T, KeyT>
         }
     
     private:
-        void touch(const KeyT& key, bool isfill = false) override
+        void touch(const KeyT& key, bool isfill = false)
         {
         }
         
-        void insert(const KeyT& key) override
+        void insert(const KeyT& key)
         {
             values[key] = slowLoad(key);
             size++;
         }
         
-        void evict() override
+        void evict()
         {
             auto victim = values.begin()->first;
             size_t victimLastUse = 0;
@@ -99,7 +97,7 @@ class PerfectCache: public CacheInterface<T, KeyT>
             size--;
         }
 
-        T slowLoad([[maybe_unused]] const KeyT& key) const override
+        T slowLoad([[maybe_unused]] const KeyT& key) const
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             return static_cast<T>(1);
